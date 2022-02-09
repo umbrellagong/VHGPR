@@ -64,11 +64,12 @@ class VHGPR(object):
         y : array-like of shape (n_samples,) 
             Target values.
         """
-        
+
+        whether_success=False
+
         self.kernelf_ = clone(self.kernelf) 
         self.kernelg_ = clone(self.kernelg)
        
-        
         self.X_train_ = np.copy(X)  
         self.y_train_ = np.copy(y)  
         self.n = X.shape[0]
@@ -87,16 +88,26 @@ class VHGPR(object):
                 initial_para_ = np.random.uniform(bounds[:, 0], bounds[:, 1])
                 optimal.append(self._optimizer(initial_para_, bounds))
         
+        # generate more staritng points if no converged results
+        for jj in range(50): 
+            if np.min([i.fun for i in optimal])==10000:
+                print(jj)
+                initial_para_ = np.random.uniform(bounds[:, 0], bounds[:, 1])
+                optimal.append(self._optimizer(initial_para_, bounds))
+            else: 
+                whether_success=True
+                break
+        assert whether_success
+
         optimal = optimal[np.argmin([i.fun for i in optimal])]
         self.logA = optimal.x[0 : self.n]
         self.kernelf_.theta = optimal.x[self.n : self.n + 
                                         self.kernelf_.theta.shape[0]]
         self.kernelg_.theta = optimal.x[self.n +self.kernelf_.theta.shape[0] 
-                                      : self.n + self.kernelf_.theta.shape[0] 
+                                    : self.n + self.kernelf_.theta.shape[0] 
                                         + self.kernelg_.theta.shape[0]]
         self.mu0 = optimal.x[-1]
-        self.optimal = optimal
-                
+
         return self
 
     def predict(self, X):
