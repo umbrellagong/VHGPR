@@ -91,7 +91,7 @@ class VHGPR(object):
         # generate more staritng points if no converged results
         for jj in range(50): 
             if np.min([i.fun for i in optimal])==10000:
-                print(jj)
+                print("fit one more time!")
                 initial_para_ = np.random.uniform(bounds[:, 0], bounds[:, 1])
                 optimal.append(self._optimizer(initial_para_, bounds))
             else: 
