@@ -258,7 +258,8 @@ class VHGPR(object):
                                               method="L-BFGS-B", 
                                               jac = True, bounds = bounds, 
                                               options={'gtol': 1e-2})
-        except Exception:
+        except Exception as e:
+            print(e)
             result = scipy.optimize.OptimizeResult()
             result.fun = 10000
             print('diverge')
